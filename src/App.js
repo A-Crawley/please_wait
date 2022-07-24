@@ -28,14 +28,13 @@ function App() {
       if (localStorage.getItem("countryCode"))
         return localStorage.getItem("countryCode");
       const res = await fetch('https://www.cloudflare.com/cdn-cgi/trace');
-      console.log({res})
+      
       if (!res.ok) throw new Error(await res.text());
       const data = await res.text();
       const reduce = data.trim().split('\n').reduce(function(obj, pair) {
         pair = pair.split('=');
         return obj[pair[0]] = pair[1], obj;
       }, {});
-      console.log({data})
       localStorage.setItem("countryCode", JSON.stringify(reduce));
       return reduce;    
     } catch (error) {
@@ -55,16 +54,12 @@ function App() {
   }
 
   const recordSession = async () => {
-    console.log({uiBefore: userInformation});
     if (!userInformation)
       userInformation = await getLocation();
-    console.log({uiAfter: userInformation});
-    console.log({sBefore: sessionId});
+
     if (!sessionId)
       sessionId = crypto.randomUUID();
-    console.log({sAfter: sessionId});
 
-    console.log({mBefore: minutes});
     minutes = minutes + 1;
     console.log({mAfter: minutes});
     if (minutes >= winMinutes) {
@@ -82,7 +77,6 @@ function App() {
     console.log('opened');
     if (waited || !started) {
       clearInterval(interval);
-      console.log('cleared');
       return;
     }
     recordSession();
