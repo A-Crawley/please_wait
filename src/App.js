@@ -1,24 +1,131 @@
-import logo from './logo.svg';
-import './App.css';
+import { useState, useEffect } from "react";
+import { createClient } from "@supabase/supabase-js";
+import "./App.css";
 
 function App() {
+  const winMinutes = 3;
+  const [waited, setWaited] = useState(false);
+  const [started, setStarted] = useState(false);
+
+  let sessionId;
+  let userInformation;
+  let minutes = 0;
+  let completed = false;
+
+
+  const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
+  const supabaseKey = process.env.REACT_APP_SUPABASE_KEY;
+  const supabaseClient = createClient(supabaseUrl, supabaseKey);
+
+  const playAudio = () => {
+    document.getElementById("audioComponent").play()
+  }
+
+  const getLocation = async () => {
+    try {
+      if (localStorage.getItem("countryCode"))
+        return localStorage.getItem("countryCode");
+      const res = await fetch("http://ip-api.com/json");
+      if (!res.ok) throw new Error(await res.text);
+      const data = await res.json();
+      console.log({data})
+      localStorage.setItem("countryCode", JSON.stringify(data));
+      return data;    
+    } catch (error) {
+      console.error(
+        `error getting location from api.db-ip.com:`,
+        error.message
+      );
+    }
+  };
+
+  const submit = async () => {
+    const { data, error } = await supabaseClient
+      .from('wait_log')
+      .insert([
+        { user_id: sessionId, complete: completed, user_information: userInformation },
+      ])
+  }
+
+  const recordSession = async () => {
+    console.log({uiBefore: userInformation});
+    if (!userInformation)
+      userInformation = await getLocation();
+    console.log({uiAfter: userInformation});
+    console.log({sBefore: sessionId});
+    if (!sessionId)
+      sessionId = crypto.randomUUID();
+    console.log({sAfter: sessionId});
+
+    console.log({mBefore: minutes});
+    minutes = minutes + 1;
+    console.log({mAfter: minutes});
+    if (minutes >= winMinutes) {
+      clearInterval(interval);
+      completed = true;
+      setWaited(true);
+      playAudio();
+    }
+
+    
+    await submit();
+  }
+
+  const interval = setInterval(() => {
+    console.log('opened');
+    if (waited || !started) {
+      clearInterval(interval);
+      console.log('cleared');
+      return;
+    }
+    recordSession();
+  }, 1000 * 60);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <>
+    <div className="main">
+      {
+        (() => {
+          if (!started){
+            return (
+              <>
+                <div className="begin">
+                  <button onClick={() => setStarted(true)}>
+                    ! Begin !
+                  </button>
+                </div>
+              </>
+            )
+          } else {
+            return (
+              <>
+                <div className="content">
+                  {(() => {
+                    if (!waited) {
+                      return (
+                        <>
+                          <p>Please Wait</p>
+                          <div id="1" className="ellipsis"></div>
+                        </>
+                      );
+                    } else {
+                      return <p className="waited">Thank you</p>;
+                    }
+                  })()}
+                </div>
+              </>
+            )
+          }
+        })()
+      }
     </div>
+    <div style={{display: 'hidden'}}>
+      <audio 
+        id="audioComponent"
+        src="waited.mp3"
+      />
+    </div>
+    </>
   );
 }
 

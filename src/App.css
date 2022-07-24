@@ -1,38 +1,123 @@
-.App {
-  text-align: center;
+@import url('https://fonts.googleapis.com/css2?family=Karla');
+
+:root {
+  --background: #000000;
+  --button-color: #ff0000;
+  --button-border-color: #aa0000;
+  --button-color-hover: #ff2d2d;
+  --button-border-color-hover: #a81e1e;
+  --button-text-color: #ffffff;
+  --button-text-color-hover: #ffffff;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+body {
+  overflow: none;
+  font-family: 'Karla', sans-serif;
   color: white;
+  background: var(--background);
 }
 
-.App-link {
-  color: #61dafb;
+.main {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+.content {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 470px;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: baseline;
+  font-size: 5em;
+}
+
+.main > p {
+  margin-right: 25px;
+}
+
+.begin {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.begin > button {
+  font-family: 'Karla', sans-serif;
+  font-size: 5em;
+  font-weight: bolder;
+  padding-inline: 25px;
+  padding-bottom: 10px;
+  cursor: pointer;
+  border-radius: 25px;
+  background-color: var(--button-color);
+  color: var(--button-text-color);
+  border-top: 2px solid var(--button-border-color);
+  border-left: 2px solid var(--button-border-color);
+  border-right: 0 solid;
+  border-bottom: 0 solid;
+}
+
+.begin > button:active {
+  border: 0;
+}
+
+.ellipsis::after {
+  letter-spacing: 2px;
+  content: '...';
+  animation-name: ellipsis;
+  animation-duration: 3s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-direction: reverse;
+}
+
+.waited {
+  animation-name: waited;
+  animation-duration: 5s;
+  animation-fill-mode: forwards;
+}
+
+@media only screen and (max-width: 600px) {
+  .content {
+    font-size: 3em;
+    width: 290px;
   }
+}
+
+@keyframes waited {
+  from {
+    color: transparent;
+  }
+
   to {
-    transform: rotate(360deg);
+    color: white;
+  }
+}
+
+@keyframes ellipsis {
+  0% {
+    content: '...';
+  }
+  16% {
+    content: '..'
+  }
+  32% {
+    content: '.'
+  }
+  48% {
+    content: '';
+  }
+  64% {
+    content: '.';
+  }
+  80% {
+    content: '..';
+  }
+  100% {
+    content: '...';
   }
 }
