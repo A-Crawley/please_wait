@@ -26,7 +26,7 @@ function App() {
   const getLocation = async () => {
     try {
       if (localStorage.getItem("countryCode"))
-        return localStorage.getItem("countryCode");
+        return JSON.parse(localStorage.getItem("countryCode"));
       const res = await fetch('https://www.cloudflare.com/cdn-cgi/trace');
       
       if (!res.ok) throw new Error(await res.text());
