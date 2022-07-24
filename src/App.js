@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
+import sound from './waited.mp3'
 import "./App.css";
 
 function App() {
-  const winMinutes = 3;
+  const winMinutes = 111;
   const [waited, setWaited] = useState(false);
   const [started, setStarted] = useState(false);
 
@@ -18,19 +19,25 @@ function App() {
   const supabaseClient = createClient(supabaseUrl, supabaseKey);
 
   const playAudio = () => {
-    document.getElementById("audioComponent").play()
+    const audio = new Audio(sound)
+    audio.play();
   }
 
   const getLocation = async () => {
     try {
       if (localStorage.getItem("countryCode"))
         return localStorage.getItem("countryCode");
-      const res = await fetch("http://ip-api.com/json");
-      if (!res.ok) throw new Error(await res.text);
-      const data = await res.json();
+      const res = await fetch('https://www.cloudflare.com/cdn-cgi/trace');
+      console.log({res})
+      if (!res.ok) throw new Error(await res.text());
+      const data = await res.text();
+      const reduce = data.trim().split('\n').reduce(function(obj, pair) {
+        pair = pair.split('=');
+        return obj[pair[0]] = pair[1], obj;
+      }, {});
       console.log({data})
-      localStorage.setItem("countryCode", JSON.stringify(data));
-      return data;    
+      localStorage.setItem("countryCode", JSON.stringify(reduce));
+      return reduce;    
     } catch (error) {
       console.error(
         `error getting location from api.db-ip.com:`,
@@ -79,7 +86,7 @@ function App() {
       return;
     }
     recordSession();
-  }, 1000 * 60);
+  }, 1000 * 10);
 
   return (
     <>
@@ -118,12 +125,6 @@ function App() {
           }
         })()
       }
-    </div>
-    <div style={{display: 'hidden'}}>
-      <audio 
-        id="audioComponent"
-        src="waited.mp3"
-      />
     </div>
     </>
   );
